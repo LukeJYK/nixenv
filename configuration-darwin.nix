@@ -13,6 +13,12 @@
     pkgs.ripgrep
     pkgs.fastfetch
   ];
-
+  fonts.packages = with pkgs; [
+    iosevka
+    nerd-fonts.iosevka
+    nerd-fonts.victor-mono
+    nerd-fonts.zed-mono
+    maple-mono.NF
+  ];
   system.stateVersion = 6;
 }

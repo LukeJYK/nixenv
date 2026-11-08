@@ -9,6 +9,8 @@
     tmux
     # dotfiles
     chezmoi
+    # version manager
+    unstable.mise
     # macos gui
     wezterm
   ];

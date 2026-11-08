@@ -1,43 +1,76 @@
 # nixenv
 
-Nix setup for macOS (MacBook). This repo will hold a declarative macOS setup built with
-[nix-darwin](https://github.com/nix-darwin/nix-darwin).
+Declarative setup for my MacBook (Apple Silicon), built with
+[nix-darwin](https://github.com/nix-darwin/nix-darwin) and
+[home-manager](https://github.com/nix-community/home-manager) on nixpkgs 26.05.
 
-## Step 1: Install Nix
+## Layout
 
-Install Nix with the [Determinate Nix Installer](https://github.com/DeterminateSystems/nix-installer):
+| File | What it holds |
+|---|---|
+| `flake.nix` | Inputs (nixpkgs 26.05, nixpkgs-unstable, nix-darwin, home-manager) and the `MacBook` config |
+| `configuration-darwin.nix` | System level: system packages, fonts, users |
+| `home-darwin.nix` | User level (home-manager): user packages |
+
+Packages come from nixpkgs 26.05 by default. Use `pkgs.unstable.<name>` to get the newest version from nixpkgs-unstable.
+
+## Tools
+
+**System packages** (`configuration-darwin.nix`)
+
+| Tool | Purpose |
+|---|---|
+| ripgrep (`rg`) | Fast text search |
+| fastfetch | System info |
+
+**User packages** (`home-darwin.nix`)
+
+| Tool | Purpose |
+|---|---|
+| btop | Resource monitor |
+| tmux | Terminal multiplexer |
+| chezmoi | Dotfile manager |
+| mise | Version manager for CLI tools (from unstable) |
+| WezTerm | Terminal emulator (GUI) |
+
+**Fonts** (`configuration-darwin.nix`)
+
+Iosevka, Iosevka Nerd Font, VictorMono Nerd Font, ZedMono Nerd Font, Maple Mono NF
+
+## Install on a new Mac
+
+1. Install Nix with the [Determinate Nix Installer](https://github.com/DeterminateSystems/nix-installer),
+   then open a new terminal:
+
+   ```sh
+   curl -fsSL https://install.determinate.systems/nix | sh -s -- install
+   ```
+
+2. Clone this repo and run the first switch (this also installs `darwin-rebuild`):
+
+   ```sh
+   git clone https://github.com/LukeJYK/nixenv ~/nixenv
+   cd ~/nixenv
+   sudo nix run nix-darwin/nix-darwin-26.05#darwin-rebuild -- switch --flake .#MacBook
+   ```
+
+Determinate manages Nix itself, so `configuration-darwin.nix` sets `nix.enable = false`.
+Don't set `nix.settings` options there; put Nix settings in `/etc/nix/nix.custom.conf` instead.
+
+## Daily use
 
 ```sh
-curl -fsSL https://install.determinate.systems/nix | sh -s -- install
+sudo darwin-rebuild switch --flake .#MacBook   # apply changes
+darwin-rebuild build --flake .#MacBook         # build only, to check the config
+nix flake update                               # update all inputs, then switch
+sudo darwin-rebuild --rollback                 # go back to the previous generation
 ```
 
-Open a new terminal, then check that it works:
-
-```sh
-nix --version
-nix run nixpkgs#hello
-```
-
-Flakes and `nix-command` are already turned on, so you don't need to edit `nix.conf`.
-
-## Step 2: nix-darwin (next)
-
-Not set up yet. Note: Determinate already manages the Nix daemon, so the nix-darwin config
-will need:
-
-```nix
-nix.enable = false;
-```
+New files must be added with `git add` before the flake can see them.
 
 ## Uninstall
 
 ```sh
-/nix/nix-installer uninstall
-```
-
-This removes Nix, the `/nix` volume, the daemon, and the related shell profile changes.
-If nix-darwin is installed later, uninstall it first:
-
-```sh
-sudo darwin-uninstaller
+sudo darwin-uninstaller          # remove nix-darwin and home-manager first
+/nix/nix-installer uninstall     # then remove Nix
 ```
