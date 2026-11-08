@@ -13,5 +13,8 @@
     unstable.mise
     # macos gui
     wezterm
+    # zsh; .zshrc from chezmoi sources these from /etc/profiles/per-user/$USER/share
+    oh-my-zsh
+    openssh
   ];
 }

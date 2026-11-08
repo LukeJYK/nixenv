@@ -9,10 +9,6 @@
   };
   system.primaryUser = "yankai";
 
-  environment.systemPackages = [
-    pkgs.ripgrep
-    pkgs.fastfetch
-  ];
   fonts.packages = with pkgs; [
     iosevka
     nerd-fonts.iosevka
