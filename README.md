@@ -14,6 +14,10 @@ Both Macs share `configuration-darwin.nix` and `home-darwin.nix`. Each one has a
 | `macbook-1` | Personal MacBook | `yankai` |
 | `macbook-2` | Lab MacBook | `jiang.yank` |
 
+`build.sh` finds the current Mac by login user. It reads the `system.primaryUser = "...";` line
+in each host file and picks the host whose user matches `id -un`. That means every Mac needs
+its own login user, and that line must stay on a single line in this exact form.
+
 To add another Mac:
 
 1. Create `hosts/<name>/default.nix` that sets `system.primaryUser`.
@@ -28,6 +32,8 @@ To add another Mac:
 | `hosts/<name>/default.nix` | Per-machine settings: the login user (`system.primaryUser`) |
 | `configuration-darwin.nix` | System level, shared by all Macs: fonts, users, linked share paths |
 | `home-darwin.nix` | User level (home-manager): user packages |
+| `build.sh` | Builds, switches, or updates. It detects the current Mac on its own |
+| `run-before-commit.sh` | Checks to run before a commit: untracked `.nix` files, formatting, every Mac builds |
 | `treefmt.toml` | Formatter config: `treefmt` formats every `.nix` file with nixfmt |
 
 Packages come from nixpkgs 26.05 by default. Use `pkgs.unstable.<name>` to get the newest version from nixpkgs-unstable.
@@ -70,33 +76,90 @@ Iosevka, Iosevka Nerd Font, VictorMono Nerd Font, ZedMono Nerd Font, Maple Mono 
    curl -fsSL https://install.determinate.systems/nix | sh -s -- install
    ```
 
-2. Clone this repo and run the first switch (this also installs `darwin-rebuild`):
+2. Clone this repo and run the first switch:
 
    ```sh
    git clone https://github.com/LukeJYK/nixenv ~/nixenv
    cd ~/nixenv
-   sudo nix run nix-darwin/nix-darwin-26.05#darwin-rebuild -- switch --flake .#macbook-1
+   ./build.sh switch
    ```
 
-   Use `.#macbook-2` instead of `.#macbook-1` on the lab Mac. This applies to every command below.
+   `build.sh` picks `macbook-1` or `macbook-2` from your login user. `darwin-rebuild` isn't
+   installed yet on a new Mac, so the script runs it through `nix run`. That first switch
+   installs it for later runs.
 
 Determinate manages Nix itself, so `configuration-darwin.nix` sets `nix.enable = false`.
 Don't set `nix.settings` options there; put Nix settings in `/etc/nix/nix.custom.conf` instead.
 
 ## Daily use
 
+Run `build.sh` without `sudo`. It asks for `sudo` itself when it switches.
+
 ```sh
-sudo darwin-rebuild switch --flake .#macbook-1   # apply changes
-darwin-rebuild build --flake .#macbook-1         # build only, to check the config
-nix flake update                                 # update all inputs, then switch
-sudo darwin-rebuild --rollback                   # go back to the previous generation
+./build.sh build                 # build this Mac only, then list the packages that would change
+./build.sh switch                # build and switch this Mac
+./build.sh build all             # build every Mac, to check that a shared change breaks none
+./build.sh build macbook-2       # build one specific Mac
+./build.sh update [input...]     # update flake.lock: every input, or only the ones named
+sudo darwin-rebuild --rollback   # go back to the previous generation
 ```
+
+`switch` only ever switches the Mac you're on. It refuses to put another Mac's config on this one.
+`build` and `switch` never change `flake.lock`. Only `update` does.
 
 New files must be added with `git add` before the flake can see them.
 
-## Formatting
+### A typical change
 
-Run `treefmt` in the repo root before you commit. It formats every `.nix` file with nixfmt.
+```sh
+# edit home-darwin.nix, configuration-darwin.nix, ...
+./build.sh build                 # check it builds and see what changes
+./build.sh switch
+./run-before-commit.sh           # format, then build every Mac
+git add -A && git commit
+```
+
+On the other Mac, run `git pull` and then `./build.sh switch`.
+
+## Updating flake.lock
+
+`flake.lock` pins every input to an exact commit. As long as it's committed, both Macs get
+exactly the same package versions.
+
+You **must** update it after you add an input to `flake.nix` or change an input's URL. Until
+you do, builds fail and ask for it. Lock only that input:
+
+```sh
+./build.sh update <input>
+```
+
+Otherwise updating is **optional**. Do it when you want newer packages or security fixes, for
+example every few weeks. Editing packages, host files or scripts never needs it.
+
+```sh
+./build.sh update                    # every input
+./build.sh update nixpkgs-unstable   # only unstable
+./build.sh build                     # list which packages changed version
+./build.sh switch
+git add flake.lock && git commit -m "update flake inputs"
+```
+
+`nix flake metadata` lists each input with its "Last modified" date.
+
+## Before you commit
+
+```sh
+./run-before-commit.sh
+```
+
+The script does three things:
+
+1. It stops if there are untracked `.nix` files, because the flake can't see them.
+2. It runs `treefmt`, which formats every `.nix` file with nixfmt.
+3. It runs `./build.sh build all` to check that every Mac still builds.
+
+The script doesn't commit anything. `treefmt` may rewrite files, so look at the `git status`
+it prints at the end and stage what changed.
 
 ## Uninstall
 
