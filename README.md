@@ -1,15 +1,32 @@
 # nixenv
 
-Declarative setup for my MacBook (Apple Silicon), built with
+Declarative setup for my MacBooks (Apple Silicon), built with
 [nix-darwin](https://github.com/nix-darwin/nix-darwin) and
 [home-manager](https://github.com/nix-community/home-manager) on nixpkgs 26.05.
+
+## Machines
+
+Both Macs share `configuration-darwin.nix` and `home-darwin.nix`. Each one has a
+`hosts/<name>/default.nix` for what differs, which is only the login user right now.
+
+| Config | Machine | User |
+|---|---|---|
+| `macbook-1` | Personal MacBook | `yankai` |
+| `macbook-2` | Lab MacBook | `jiang.yank` |
+
+To add another Mac:
+
+1. Create `hosts/<name>/default.nix` that sets `system.primaryUser`.
+2. Add `<name> = mkDarwinSystem ./hosts/<name>/default.nix;` to `darwinConfigurations` in `flake.nix`.
+3. Run `git add hosts/<name>` so the flake can see the new file.
 
 ## Layout
 
 | File | What it holds |
 |---|---|
-| `flake.nix` | Inputs (nixpkgs 26.05, nixpkgs-unstable, nix-darwin, home-manager) and the `MacBook` config |
-| `configuration-darwin.nix` | System level: fonts, users, linked share paths |
+| `flake.nix` | Inputs (nixpkgs 26.05, nixpkgs-unstable, nix-darwin, home-manager), `mkDarwinSystem`, and one config per Mac |
+| `hosts/<name>/default.nix` | Per-machine settings: the login user (`system.primaryUser`) |
+| `configuration-darwin.nix` | System level, shared by all Macs: fonts, users, linked share paths |
 | `home-darwin.nix` | User level (home-manager): user packages |
 | `treefmt.toml` | Formatter config: `treefmt` formats every `.nix` file with nixfmt |
 
@@ -58,8 +75,10 @@ Iosevka, Iosevka Nerd Font, VictorMono Nerd Font, ZedMono Nerd Font, Maple Mono 
    ```sh
    git clone https://github.com/LukeJYK/nixenv ~/nixenv
    cd ~/nixenv
-   sudo nix run nix-darwin/nix-darwin-26.05#darwin-rebuild -- switch --flake .#MacBook
+   sudo nix run nix-darwin/nix-darwin-26.05#darwin-rebuild -- switch --flake .#macbook-1
    ```
+
+   Use `.#macbook-2` instead of `.#macbook-1` on the lab Mac. This applies to every command below.
 
 Determinate manages Nix itself, so `configuration-darwin.nix` sets `nix.enable = false`.
 Don't set `nix.settings` options there; put Nix settings in `/etc/nix/nix.custom.conf` instead.
@@ -67,10 +86,10 @@ Don't set `nix.settings` options there; put Nix settings in `/etc/nix/nix.custom
 ## Daily use
 
 ```sh
-sudo darwin-rebuild switch --flake .#MacBook   # apply changes
-darwin-rebuild build --flake .#MacBook         # build only, to check the config
-nix flake update                               # update all inputs, then switch
-sudo darwin-rebuild --rollback                 # go back to the previous generation
+sudo darwin-rebuild switch --flake .#macbook-1   # apply changes
+darwin-rebuild build --flake .#macbook-1         # build only, to check the config
+nix flake update                                 # update all inputs, then switch
+sudo darwin-rebuild --rollback                   # go back to the previous generation
 ```
 
 New files must be added with `git add` before the flake can see them.

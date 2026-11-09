@@ -16,9 +16,10 @@
 
   outputs =
     { nixpkgs, ... }@inputs:
-    {
-      darwinConfigurations = {
-        MacBook = inputs.nix-darwin.lib.darwinSystem {
+    let
+      mkDarwinSystem =
+        hostModule:
+        inputs.nix-darwin.lib.darwinSystem {
           modules = [
             {
               nixpkgs.hostPlatform = "aarch64-darwin";
@@ -38,11 +39,18 @@
               home-manager.useUserPackages = true;
               home-manager.backupFileExtension = "hm-bak";
               home-manager.extraSpecialArgs = { inherit inputs; };
-              home-manager.users.yankai = ./home-darwin.nix;
+              # home-manager.users is set in configuration-darwin.nix,
+              # from the host's system.primaryUser
             }
             ./configuration-darwin.nix
+            hostModule
           ];
         };
+    in
+    {
+      darwinConfigurations = {
+        macbook-1 = mkDarwinSystem ./hosts/macbook-1/default.nix; # personal
+        macbook-2 = mkDarwinSystem ./hosts/macbook-2/default.nix; # lab
       };
     };
 }
