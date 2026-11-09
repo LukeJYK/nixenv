@@ -27,6 +27,7 @@ All packages are installed per user through home-manager (`home-darwin.nix`), in
 | chezmoi | Dotfile manager |
 | mise | Version manager for CLI tools (from unstable) |
 | WezTerm | Terminal emulator (GUI) |
+| Obsidian | Markdown notes app (GUI, unfree, from unstable) |
 | openssh | SSH client and tools |
 | oh-my-zsh | Zsh framework |
 | zsh-autosuggestions | Suggests commands from history as you type |
