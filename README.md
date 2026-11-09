@@ -9,21 +9,15 @@ Declarative setup for my MacBook (Apple Silicon), built with
 | File | What it holds |
 |---|---|
 | `flake.nix` | Inputs (nixpkgs 26.05, nixpkgs-unstable, nix-darwin, home-manager) and the `MacBook` config |
-| `configuration-darwin.nix` | System level: system packages, fonts, users |
+| `configuration-darwin.nix` | System level: fonts, users, linked share paths |
 | `home-darwin.nix` | User level (home-manager): user packages |
 
 Packages come from nixpkgs 26.05 by default. Use `pkgs.unstable.<name>` to get the newest version from nixpkgs-unstable.
 
 ## Tools
 
-**System packages** (`configuration-darwin.nix`)
-
-| Tool | Purpose |
-|---|---|
-| ripgrep (`rg`) | Fast text search |
-| fastfetch | System info |
-
-**User packages** (`home-darwin.nix`)
+All packages are installed per user through home-manager (`home-darwin.nix`), into
+`/etc/profiles/per-user/$USER`. There are no system-wide packages.
 
 | Tool | Purpose |
 |---|---|
@@ -32,6 +26,14 @@ Packages come from nixpkgs 26.05 by default. Use `pkgs.unstable.<name>` to get t
 | chezmoi | Dotfile manager |
 | mise | Version manager for CLI tools (from unstable) |
 | WezTerm | Terminal emulator (GUI) |
+| openssh | SSH client and tools |
+| oh-my-zsh | Zsh framework |
+| zsh-autosuggestions | Suggests commands from history as you type |
+| zsh-syntax-highlighting | Highlights commands as you type |
+
+The zsh packages are only installed here. `.zshrc` comes from chezmoi and loads them from
+`/etc/profiles/per-user/$USER/share`. `configuration-darwin.nix` links those `share`
+directories through `environment.pathsToLink`.
 
 **Fonts** (`configuration-darwin.nix`)
 

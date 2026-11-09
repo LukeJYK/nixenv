@@ -15,6 +15,8 @@
     wezterm
     # zsh; .zshrc from chezmoi sources these from /etc/profiles/per-user/$USER/share
     oh-my-zsh
+    zsh-autosuggestions
+    zsh-syntax-highlighting
     openssh
   ];
 }

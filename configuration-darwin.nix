@@ -17,4 +17,12 @@
     maple-mono.NF
   ];
   system.stateVersion = 6;
+
+environment.pathsToLink = [
+  "/share/oh-my-zsh"
+  "/share/zsh-autosuggestions"
+  "/share/zsh-syntax-highlighting"
+];
+
 }
+
