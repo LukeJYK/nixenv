@@ -76,6 +76,21 @@ Iosevka, Iosevka Nerd Font, VictorMono Nerd Font, ZedMono Nerd Font, Maple Mono 
    curl -fsSL https://install.determinate.systems/nix | sh -s -- install
    ```
 
+   If a new terminal still says `nix: command not found`, the installer didn't add Nix to
+   `PATH`. Append the Nix block to `/etc/zshrc`, then open a new terminal. A plain `>>`
+   redirect runs without root, so use `sudo tee`:
+
+   ```sh
+   sudo tee -a /etc/zshrc >/dev/null <<'EOF'
+
+   # Nix
+   if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
+       . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
+   fi
+   # End Nix
+   EOF
+   ```
+
 2. Clone this repo and run the first switch:
 
    ```sh
