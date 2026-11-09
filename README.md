@@ -11,6 +11,7 @@ Declarative setup for my MacBook (Apple Silicon), built with
 | `flake.nix` | Inputs (nixpkgs 26.05, nixpkgs-unstable, nix-darwin, home-manager) and the `MacBook` config |
 | `configuration-darwin.nix` | System level: fonts, users, linked share paths |
 | `home-darwin.nix` | User level (home-manager): user packages |
+| `treefmt.toml` | Formatter config: `treefmt` formats every `.nix` file with nixfmt |
 
 Packages come from nixpkgs 26.05 by default. Use `pkgs.unstable.<name>` to get the newest version from nixpkgs-unstable.
 
@@ -30,6 +31,9 @@ All packages are installed per user through home-manager (`home-darwin.nix`), in
 | oh-my-zsh | Zsh framework |
 | zsh-autosuggestions | Suggests commands from history as you type |
 | zsh-syntax-highlighting | Highlights commands as you type |
+| starship | Shell prompt |
+| treefmt | Runs formatters over the repo, configured in `treefmt.toml` |
+| nixfmt | Formatter for `.nix` files |
 
 The zsh packages are only installed here. `.zshrc` comes from chezmoi and loads them from
 `/etc/profiles/per-user/$USER/share`. `configuration-darwin.nix` links those `share`
@@ -69,6 +73,10 @@ sudo darwin-rebuild --rollback                 # go back to the previous generat
 ```
 
 New files must be added with `git add` before the flake can see them.
+
+## Formatting
+
+Run `treefmt` in the repo root before you commit. It formats every `.nix` file with nixfmt.
 
 ## Uninstall
 

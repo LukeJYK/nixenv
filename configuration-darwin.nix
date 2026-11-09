@@ -9,6 +9,8 @@
   };
   system.primaryUser = "yankai";
 
+  security.pam.services.sudo_local.touchIdAuth = true;
+
   fonts.packages = with pkgs; [
     iosevka
     nerd-fonts.iosevka
@@ -18,11 +20,10 @@
   ];
   system.stateVersion = 6;
 
-environment.pathsToLink = [
-  "/share/oh-my-zsh"
-  "/share/zsh-autosuggestions"
-  "/share/zsh-syntax-highlighting"
-];
+  environment.pathsToLink = [
+    "/share/oh-my-zsh"
+    "/share/zsh-autosuggestions"
+    "/share/zsh-syntax-highlighting"
+  ];
 
 }
-

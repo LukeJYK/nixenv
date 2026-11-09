@@ -18,5 +18,9 @@
     zsh-autosuggestions
     zsh-syntax-highlighting
     openssh
+    starship
+    # formatters; treefmt reads treefmt.toml at the repo root
+    treefmt
+    nixfmt
   ];
 }

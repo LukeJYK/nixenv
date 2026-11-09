@@ -11,9 +11,8 @@
       url = "github:nix-darwin/nix-darwin/nix-darwin-26.05"; # keep nix-darwin same version as nixpkgs
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable"; 
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   };
-
 
   outputs =
     { nixpkgs, ... }@inputs:
