@@ -114,24 +114,22 @@ build_hosts() {
 }
 
 switch_host() {
-  local me
-  local -a rebuild
+  local me out
 
   if (($# != 0)); then
     usage_error "switch takes no host; it always switches this mac"
   fi
   me="$(require_current_host)"
 
-  if command -v darwin-rebuild >/dev/null; then
-    rebuild=(darwin-rebuild)
-  else
-    # first install: darwin-rebuild is not on PATH yet
-    rebuild=(nix run nix-darwin/nix-darwin-26.05#darwin-rebuild --)
-  fi
+  # build first, then switch with the darwin-rebuild inside that build.
+  # it comes from the locked nixpkgs, so a new mac (no darwin-rebuild on PATH
+  # yet) downloads nothing beyond the build itself
+  echo "building: $me"
+  out="$(nix build --no-link --no-write-lock-file --print-out-paths ".#darwinConfigurations.$me.system")"
 
   echo "switching: $me"
   # -H sets HOME to root's home, which avoids nix's '$HOME is not owned by you' warning
-  sudo -H "${rebuild[@]}" switch --no-write-lock-file --flake ".#$me"
+  sudo -H "$out/sw/bin/darwin-rebuild" switch --no-write-lock-file --flake ".#$me"
 }
 
 # the script runs sudo itself, and under sudo the login user would read as root

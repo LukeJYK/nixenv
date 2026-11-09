@@ -99,9 +99,9 @@ Iosevka, Iosevka Nerd Font, VictorMono Nerd Font, ZedMono Nerd Font, Maple Mono 
    ./build.sh switch
    ```
 
-   `build.sh` picks `macbook-1` or `macbook-2` from your login user. `darwin-rebuild` isn't
-   installed yet on a new Mac, so the script runs it through `nix run`. That first switch
-   installs it for later runs.
+   `build.sh` picks `macbook-1` or `macbook-2` from your login user. It builds the system,
+   then switches with the `darwin-rebuild` from that build. A new Mac has no
+   `darwin-rebuild` yet, and this way it needs no download beyond the build itself.
 
 Determinate manages Nix itself, so `configuration-darwin.nix` sets `nix.enable = false`.
 Don't set `nix.settings` options there; put Nix settings in `/etc/nix/nix.custom.conf` instead.
